@@ -9,20 +9,25 @@ It is just a way of following the official documentations while applying the wor
 It is possible to install [Synapse as a Python module](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi) from PyPI (which is what were are going to do).  
 First install the platform-specific prerequisites.
 ```shell
-$ pkg install build-essential binutils python rust libffi sqlite openssl  libjpeg-turbo
-$ pip install virtualenv
+pkg install build-essential binutils python rust libffi sqlite openssl  libjpeg-turbo
+```
+
+```shell
+pip install virtualenv
 ```
 One of the dependencies of the `matrix-synapse` python module is the [cryptography](https://cryptography.io/en/latest/) which will be built via rust. In most cases, rust will not be able to build it since it cannot determine the build target see [termux-packages#8037](https://github.com/termux/termux-packages/issues/8037).  
 The build target can be specified via the `CARGO_BUILD_TARGET` environment variable.  
 You can use the command `rustc --print target-list | grep android` to see the target list that you can choose from based on your architecture (ps: You can check your architecture via the command `uname -m`)
-Here we will use armv7 architecture as an example.
+Here we will use aarch64 architecture as an example.
 ```shell
-$ export CARGO_BUILD_TARGET=armv7-linux-androideabi
+export CARGO_BUILD_TARGET=aarch64-linux-android
 ```
 
 ```shell
 nano ~/.cargo/config.toml
+```
 
+```shell
 [profile.dev]
 lto = false
 [profile.release]
@@ -31,27 +36,45 @@ lto = false
 lto  =false
 [profile.bench]
 lto = false
-
 ```
 Now we can carry on with the rest of the official installation instructions. Here we will have the synapse folder under `$PREFIX/opt`
 ```shell
-$ mkdir -p $PREFIX/opt/synapse
-$ cd $PREFIX/opt/synapse
-$ virtualenv -p python3 env
-$ source ./env/bin/activate
-$ pip install --upgrade pip
-$ pip install --upgrade setuptools
-$ pip install matrix-synapse
+mkdir -p $PREFIX/opt/synapse
+```
+
+```shell
+cd $PREFIX/opt/synapse
+```
+
+```shell
+virtualenv -p python3 env
+```
+
+```shell
+source ./env/bin/activate
+```
+
+```shell
+pip install --upgrade pip
+```
+
+```shell
+pip install --upgrade setuptools
+```
+
+```shell
+pip install matrix-synapse
 ```
 
 It's now time to generate a configuration file. In the same directory (and while the virtual environment is activated). Execute the following:
 ```shell
-$ python -m synapse.app.homeserver \
+python -m synapse.app.homeserver \
     --server-name 3.cek123.my.id \
     --config-path homeserver.yaml \
     --generate-config \
     --report-stats=no
 ```
+
 Replace `your.domain.name` with your domain name, and choose whether you'd like to report usage statistics to the developers using the flag `--report-stats=` [read more about this in the official synaps docs](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi)
 
 One last step I prefer to add (you can ignore this if you like and use what's provided in the official docs) is to have synctl binary that does what synctl should do in the virtualenv.
@@ -81,7 +104,7 @@ As for the needed configuration (what you need to change in order for it to work
 #### Nginx
 Nginx is available via the pkg package manager. You might want to install termux-services to ensure it'll stay running and managed by `runit`
 ```shell
-$ pkg install -y nginx termux-services
+pkg install -y nginx termux-services
 ```
 > and then restart termux so that the service-daemon is started.  
 
@@ -98,16 +121,20 @@ It is possible to compile augeas on android, but you will need to add `#define _
 
 To install certbot, first set up the virtual environment.
 ```shell
-$ python -m venv $PREFIX/opt/certbot
-$ $PREFIX/opt/certbot/bin/pip install --upgrade pip
+python -m venv $PREFIX/opt/certbot
 ```
+
+```shell
+$PREFIX/opt/certbot/bin/pip install --upgrade pip
+```
+
 Then install certbot in the virtual environment by running this command.
 ```shell
-$ $PREFIX/opt/certbot/bin/pip install certbot certbot-nginx
+$PREFIX/opt/certbot/bin/pip install certbot certbot-nginx
 ```
 Execute the following instruction on the command line on the machine to ensure that the certbot command can be run.
 ```shell
-$ ln -s $PREFIX/opt/certbot/bin/certbot $PREFIX/bin/certbot
+ln -s $PREFIX/opt/certbot/bin/certbot $PREFIX/bin/certbot
 ```
 And you are done with the installation.
 ### Configuration
@@ -117,14 +144,21 @@ You can copy my configs or make your own from scratch if you'd like. My advice i
 
 After backing up your default/old configs, Copy the [configuration](/nginx.conf) provided hereto your `$PREFIX/etc/nginx`
 ```shell
-$ cp $PREFIX/etc/nginx/nginx.conf $PREFIX/etc/nginx/nginx.conf.orig
-$ curl "https://raw.githubusercontent.com/medanisjbara/synapse-termux/main/nginx.conf" -O $PREFIX/etc/nginx/nginx.conf
+cp $PREFIX/etc/nginx/nginx.conf $PREFIX/etc/nginx/nginx.conf.orig
+```
+
+```shell
+curl "https://raw.githubusercontent.com/medanisjbara/synapse-termux/main/nginx.conf" -O $PREFIX/etc/nginx/nginx.conf
 ```
 Next, create the sites-available and sites-enabled directories.
 ```shell
-$ mkdir $PREFIX/etc/nginx/sites-available $PREFIX/etc/nginx/sites-enabled
+mkdir $PREFIX/etc/nginx/sites-available $PREFIX/etc/nginx/sites-enabled
 ```
 Add the following to `$PREFIX/etc/nginx/sites-available`
+```shell
+nano $PREFIX/etc/nginx/sites-available/matrix
+```
+
 ```nginx
 server {
         server_name 3.cek123.my.id;
@@ -144,18 +178,21 @@ server {
 **NOTE:** Ofc whenever you change nginx configs. You should test the configuration by executing `nginx -t`. If all goes well, you can continue to the next step. Otherwise, fix the errors that might occur.
 AND WE ARE READY TO ENABLE THE NGINX MATRIX SITE.
 ```shell
-$ ln -s $PREFIX/etc/nginx/sites-available/matrix $PREFIX/etc/nginx/sites-enabled
-$ sv up nginx
+ln -s $PREFIX/etc/nginx/sites-available/matrix $PREFIX/etc/nginx/sites-enabled
+```
+
+```shell
+sv up nginx
 ```
 Now nginx is running, you can check if it still is using `sv status nginx`. To enable it, use `sv-enable nginx`. Read more about managing services in termux on [their wiki](https://wiki.termux.com/wiki/Termux-services).  
 If for whatever reason something didn't work. You can check the log for errors by executing the following command.
 ```
-$ tail -f $PREFIX/var/log/nginx/errors.log
+tail -f $PREFIX/var/log/nginx/errors.log
 ```
 If everything went okay until this point. You should check your router and forward your ports to the internet. Here you'll need to forward port 8080 to port 80 , and port 8443 to port 443. You can then execute the certbot command.
 #### Certbot
 ```shell
-$ certbot --work-dir $PREFIX/var/lib/letsencrypt --logs-dir $PREFIX/var/log/letsencrypt --config-dir $PREFIX/etc/letsencrypt --nginx-server-root $PREFIX/etc/nginx --http-01-port 8080 --https-port 8443 -v --nginx -d your.domain.name
+certbot --work-dir $PREFIX/var/lib/letsencrypt --logs-dir $PREFIX/var/log/letsencrypt --config-dir $PREFIX/etc/letsencrypt --nginx-server-root $PREFIX/etc/nginx --http-01-port 8080 --https-port 8443 -v --nginx -d your.domain.name
 ```
 Hopefully, if everything went okay and there are no errors. (I doubt it at this point, but you can open an issue here if you'd like). Then it's time to edit `$PREFIX/ect/nginx/sites-available/matrix` again, just replace 443 with 8443.    
 ##### Certbot Didn't setup the config.
@@ -198,9 +235,15 @@ You can check if your server is running correctly by entering your domain name i
 ### Adding a user
 After setting up your server. You can execute `register_new_matrix_user` under the synapse virtual environment to create your user.
 ```shell
-$ cd $PREFIX/opt/synapse
-$ source env/bin/activate
-$ register_new_matrix_user -c homeserver.yaml http://localhost:8008
+cd $PREFIX/opt/synapse
+```
+
+```shell
+source env/bin/activate
+```
+
+```shell
+register_new_matrix_user -c homeserver.yaml http://localhost:8008
 ```
 ### Connecting to the server
 You can choose any matrix client from https://matrix.org/clients , if you are willing to use the server from the same network used for hosting, continue with the steps below.
@@ -210,13 +253,19 @@ This is to ensure that the computer sees you.domain.name the same way anyone fro
 Make sure there are no other programs listening on those ports before forwarning them.
 ##### Using adb
 ```shell
-$ adb forward tcp:80 tcp:8080
-$ adb forward tcp:443 tcp:8443
+adb forward tcp:80 tcp:8080
+```
+
+```shell
+adb forward tcp:443 tcp:8443
 ```
 ##### Using ssh
 ```shell
-$ ssh <the-phone-ip> -p 8022 -NL 80:localhost:8080
-$ ssh <the-phone-ip> -p 8022 -NL 443:localhost:8443
+ssh <the-phone-ip> -p 8022 -NL 80:localhost:8080
+```
+
+```shell
+ssh <the-phone-ip> -p 8022 -NL 443:localhost:8443
 ```
 Note that both of these are foreground processes.
 #### Others (and linux)
