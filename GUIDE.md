@@ -75,7 +75,7 @@ python -m synapse.app.homeserver \
     --report-stats=no
 ```
 
-Replace `your.domain.name` with your domain name, and choose whether you'd like to report usage statistics to the developers using the flag `--report-stats=` [read more about this in the official synaps docs](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi)
+Replace `3.cek123.my.id` with your domain name, and choose whether you'd like to report usage statistics to the developers using the flag `--report-stats=` [read more about this in the official synaps docs](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi)
 
 One last step I prefer to add (you can ignore this if you like and use what's provided in the official docs) is to have synctl binary that does what synctl should do in the virtualenv.
 Add a file in your `$PREFIX/bin/` (or anywhere in your path) called `synctl` and add the following to it:
@@ -94,7 +94,7 @@ source ./env/bin/activate
 Don't forget to make it executable by running the command 
 
 ```bash
-`chmod +x $PREFIX/bin/synctl`
+chmod +x $PREFIX/bin/synctl
 ```
 
 **NOTE:** It is generally not recommended to add executables to your `$PREFIX/bin`. If you want to do this right, you might want to consider using `$HOME/.local/bin` and adding it to your path.
