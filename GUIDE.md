@@ -79,6 +79,11 @@ Replace `your.domain.name` with your domain name, and choose whether you'd like 
 
 One last step I prefer to add (you can ignore this if you like and use what's provided in the official docs) is to have synctl binary that does what synctl should do in the virtualenv.
 Add a file in your `$PREFIX/bin/` (or anywhere in your path) called `synctl` and add the following to it:
+
+```bash
+nano $PREFIX/bin/synctl
+```
+
 ```bash
 #!/data/data/com.termux/files/usr/bin/bash
 
@@ -86,7 +91,12 @@ cd $PREFIX/opt/synapse
 source ./env/bin/activate
 ./env/bin/synctl "$@"
 ```
-Don't forget to make it executable by running the command `chmod +x $PREFIX/bin/synctl`
+Don't forget to make it executable by running the command 
+
+```bash
+`chmod +x $PREFIX/bin/synctl`
+```
+
 **NOTE:** It is generally not recommended to add executables to your `$PREFIX/bin`. If you want to do this right, you might want to consider using `$HOME/.local/bin` and adding it to your path.
 
 ### Configuration
