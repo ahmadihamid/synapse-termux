@@ -69,13 +69,13 @@ pip install matrix-synapse
 It's now time to generate a configuration file. In the same directory (and while the virtual environment is activated). Execute the following:
 ```shell
 python -m synapse.app.homeserver \
-    --server-name 3.cek123.my.id \
+    --server-name 2.cek123.my.id \
     --config-path homeserver.yaml \
     --generate-config \
     --report-stats=no
 ```
 
-Replace `3.cek123.my.id` with your domain name, and choose whether you'd like to report usage statistics to the developers using the flag `--report-stats=` [read more about this in the official synaps docs](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi)
+Replace `2.cek123.my.id` with your domain name, and choose whether you'd like to report usage statistics to the developers using the flag `--report-stats=` [read more about this in the official synaps docs](https://matrix-org.github.io/synapse/latest/setup/installation.html#installing-as-a-python-module-from-pypi)
 
 One last step I prefer to add (you can ignore this if you like and use what's provided in the official docs) is to have synctl binary that does what synctl should do in the virtualenv.
 Add a file in your `$PREFIX/bin/` (or anywhere in your path) called `synctl` and add the following to it:
@@ -171,7 +171,7 @@ nano $PREFIX/etc/nginx/sites-available/matrix
 
 ```nginx
 server {
-        server_name 3.cek123.my.id;
+        server_name 2.cek123.my.id;
 
         location / {
                 proxy_pass http://localhost:8008;
@@ -209,7 +209,7 @@ Hopefully, if everything went okay and there are no errors. (I doubt it at this 
 In some cases `certbot` doesn't add the needed changes to the `$PREFIX/etc/nginx/sites-available/matrix` file. In that case you'll have to edit it manually. If that's the case. Here's how the final file should look like, just remove the old content, and paste this changing `your.domain.name` with your domain name.
 ```nginx
 server {
-        server_name 3.cek123.my.id;
+        server_name 2.cek123.my.id;
 
         location / {
                 proxy_pass http://localhost:8008;
@@ -222,18 +222,18 @@ server {
         }
 
     listen 8443 ssl; # managed by Certbot
-    ssl_certificate /data/data/com.termux/files/usr/etc/letsencrypt/live/3.cek123.my.id/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /data/data/com.termux/files/usr/etc/letsencrypt/live/3.cek123.my.id/privkey.pem; # managed by Certbot
+    ssl_certificate /data/data/com.termux/files/usr/etc/letsencrypt/live/2.cek123.my.id/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /data/data/com.termux/files/usr/etc/letsencrypt/live/2.cek123.my.id/privkey.pem; # managed by Certbot
     include /data/data/com.termux/files/usr/etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /data/data/com.termux/files/usr/etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 }
 server {
-    if ($host = 3.cek123.my.id) {
+    if ($host = 2.cek123.my.id) {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
 
-        server_name 3.cek123.my.id;
+    server_name 2.cek123.my.id;
     listen 8080;
     return 404; # managed by Certbot
 }
